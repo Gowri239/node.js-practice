@@ -1,27 +1,36 @@
 const http = require('http');
+const fs = require('fs')
 const server = http.createServer((req,res) => {
     const url = req.url;
-    if(url === '/node'){
+    const method = req.method;
+    if(url === '/'){
+        fs.readFile('message.txt',{encoding: "utf-8"},(err,data)=>{
+            if(err){
+                console.log(err)
+            }
         res.write('<html>')
         res.write('<head><title>project page</title></head>')
-        res.write('<body><h1>Welcome to my Node js project</h1></body>')
+        res.write(`<body>${data}</body>`)
+        res.write('<body><form action="/message" method="POST"><input type="text" name="message"><button type="submit">send</button></form></body>')
         res.write('</html>')
         res.end()
     }
-    if(url === '/home'){
-        res.write('<html>')
-        res.write('<head><title>project page</title></head>')
-        res.write('<body><h1>Welcome home</h1></body>')
-        res.write('</html>')
-        res.end()
+    )}
+    if(url === '/message' && method === 'POST'){
+        const body = []
+        req.on('data',(chunk) => {
+            body.push(chunk)
+        })
+        req.on('end',() => {
+            const parsedBody = Buffer.concat(body).toString();
+            const message = parsedBody.split('=')[1]
+            fs.writeFile('message.txt',message,err => {
+                res.statusCode = 302
+                res.setHeader('Location','/')
+                return res.end();
+            })
+        })  
     }
-    if(url === '/about'){
-        res.write('<html>')
-        res.write('<head><title>project page</title></head>')
-        res.write('<body><h1>Welcome to about us page</h1></body>')
-        res.write('</html>')
-        res.end()
-    }
-    
+   
 })
 server.listen(4000);
