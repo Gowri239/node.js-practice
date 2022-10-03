@@ -1,15 +1,13 @@
-const path = require('path')
+
 
 const express = require('express')
 
-const rootDir = require('../util/path')
-
 const router = express.Router()
 
-router.use('/contactus',(req,res,next) => {
-    res.sendFile(path.join(rootDir,'views','contactus.html'))
-   
-})
+const contactController = require('../controllers/contactus')
+
+router.get('/contactus',contactController.contactPage)
+
 
 
 
